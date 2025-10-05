@@ -64,7 +64,11 @@ function App() {
   });
 
   useEffect(() => {
-    loadExams();
+    console.log('App mounted, loading exams...');
+    loadExams().catch(err => {
+      console.error('Failed to load exams:', err);
+      setError('Failed to load exams: ' + err.message);
+    });
   }, []);
 
   useEffect(() => {
@@ -95,9 +99,20 @@ function App() {
   }, [selectedChapter]);
 
   const loadExams = async () => {
-    const { data, error } = await supabase.from('exams').select('*');
-    if (error) setError(error.message);
-    else setExams(data || []);
+    try {
+      console.log('Fetching exams from Supabase...');
+      const { data, error } = await supabase.from('exams').select('*');
+      if (error) {
+        console.error('Supabase error:', error);
+        setError(error.message);
+      } else {
+        console.log('Exams loaded:', data);
+        setExams(data || []);
+      }
+    } catch (err: any) {
+      console.error('Exception loading exams:', err);
+      setError('Exception: ' + err.message);
+    }
   };
 
   const loadCourses = async (examId: string) => {
@@ -507,10 +522,19 @@ function App() {
     };
   };
 
+  console.log('Rendering App component...');
+  console.log('Exams:', exams);
+  console.log('Error:', error);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-6">
       <div className="max-w-7xl mx-auto">
         <h1 className="text-4xl font-bold text-slate-800 mb-8">AI Question Generator</h1>
+        {!exams.length && !error && (
+          <div className="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded-lg mb-6">
+            Loading data from database...
+          </div>
+        )}
 
         <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
           <div className="flex gap-4 mb-6">

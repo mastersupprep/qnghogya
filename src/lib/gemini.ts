@@ -1,4 +1,8 @@
-const GEMINI_API_KEYS = import.meta.env.VITE_GEMINI_API_KEYS.split(',');
+const GEMINI_API_KEYS = (import.meta.env.VITE_GEMINI_API_KEYS || '').split(',').filter(key => key.trim());
+
+if (GEMINI_API_KEYS.length === 0) {
+  console.error('No Gemini API keys found!');
+}
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent';
 
 let currentKeyIndex = 0;
